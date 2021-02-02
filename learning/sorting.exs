@@ -111,6 +111,6 @@ IO.puts("Qsort:")
 r =  Enum.shuffle(1..15)
 IO.inspect(r, charlists: :as_lists, label: "random" )
 r = Enum.sort(r)
-IO.inspect(r, charlists: :as_lists, label: "contrl" )
+IO.inspect(r, charlists: :as_lists, label: "contrl" )  ## Helpful when debugging
 res = Sort3.qsort(r)
 IO.inspect(res, charlists: :as_lists, label: "sorted" )
