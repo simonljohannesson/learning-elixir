@@ -160,19 +160,12 @@ defmodule ReadFile do
 end
 
 
-# defmodule Test do
-#   def test([]) do end
-#   def test([h|t]) do
-#     # IO.puts(List.to_string([h]))
-#     IO.puts(<<h::utf8>>)
-#     test(t)
-#   end
-# end
-
-
 defmodule FrequencyCounter do
   def analyze_text(text, tree_module) do
-    _analyze_text(text, tree_module.new(), tree_module)
+    freq_bst = _analyze_text(text, tree_module.new(), tree_module)
+    freq_lst = tree_module.get_key_value_pairs(freq_bst)
+    compare = fn {_, freq1}, {_, freq2} -> freq1 < freq2 end
+    merge_sort(freq_lst, compare)
   end
 
   defp _analyze_text([h|t], tree, tree_module) do
@@ -182,11 +175,8 @@ defmodule FrequencyCounter do
     end
   end
   defp _analyze_text([], tree, _) do tree end
-end
 
-
-defmodule Sort do
-  def merge_sort(list, compare_func) do msort(list, compare_func) end
+  defp merge_sort(list, compare_func) do msort(list, compare_func) end
 
   defp msort(list, compare_func) do
     case length(list) do
@@ -214,6 +204,8 @@ defmodule Sort do
     end
   end
 end
+
+
 
 
 defmodule Huffman do
@@ -326,7 +318,7 @@ defmodule Huffman do
     # encode next character
     encode(t, enc_table, enc_list)
   end
-  def letter_encoding(letter, [{letter, enc} | t]) do enc end
+  def letter_encoding(letter, [{letter, enc} | _]) do enc end
   def letter_encoding(letter, [{_, _} | t]) do letter_encoding(letter, t) end
 
   def move_reverse([h | []], to) do [h| to] end
@@ -344,70 +336,29 @@ defmodule Huffman do
   def decode([], _, {letter, _}, decoded_list) do
     reverse([letter | decoded_list])
   end
-  def decode([h|t] = encoded, huff_tree, {letter, _}, decoded_list) do
+  def decode([_|_] = encoded, huff_tree, {letter, _}, decoded_list) do
     decode(encoded, huff_tree, huff_tree, [letter | decoded_list])
   end
 end
 
 
 
-# lst = [{:a, 1}, {:b, 3}, {:c, 7}]
-# lst = Huffman.pq_insert(lst, {:node, 2, nil, nil})
-# IO.inspect(lst)
-
-# n = {:node, 14, {"f", 5}, {"e", 9}}
-# l = {"d", 16}
-# thirty = Huffman.merge(l, n)
-
-# twentyfive = {:node, 25, {"c", 12}, {"b", 13}}
-
-# fiftyfive = Huffman.merge(twentyfive, thirty)
-# hundred = Huffman.merge(fiftyfive, {"a", 45})
-# IO.inspect(hundred)
-
-pq = [
-  {"f", 5},
-  {"e", 9},
-  {"c", 12},
-  {"b", 13},
-  {"d", 16},
-  {"a", 45}
-]
-# IO.inspect(pq)
-
-# h_tree = Huffman.build_huffman_tree(pq)
-# enc_tab = Huffman.create_encoding_table(h_tree)
-# encoded = Huffman.encode(["e", "c", "f", "a"], enc_tab)
-# IO.inspect(enc_tab, label: "encoding table")
-# IO.inspect(encoded, label: "encoded list")
-# decoded = Huffman.decode(encoded, h_tree)
-# IO.inspect(decoded)
-
-
-# Perform task
-# text = ReadFile.read("huffman/text.txt", 100000000)
-# IO.inspect(text)
-# letter_frequency_bst = FrequencyCounter.analyze_text(text, AVLTree)
-# letter_frequency_lst = AVLTree.get_key_value_pairs(letter_frequency_bst)
-
-# compare = fn {_, freq1}, {_, freq2} -> freq1 < freq2 end
-
-# sorted_frequency = Sort.merge_sort(letter_frequency_lst, compare)
-# IO.inspect(sorted_frequency)
-
+# read text from file
 text = ReadFile.read("huffman/text.txt", 10000000)
 IO.inspect(text, label: "text")
-# determine frequency
-letter_freq_bst = FrequencyCounter.analyze_text(text, AVLTree) # should return sorted_freq
-letter_freq_lst = AVLTree.get_key_value_pairs(letter_freq_bst)
-compare = fn {_, freq1}, {_, freq2} -> freq1 < freq2 end
-sorted_frequancy = Sort.merge_sort(letter_freq_lst, compare)
-# can use frequency, this could be internals of the frequency counter module
-IO.inspect(sorted_frequancy, label: "sorted freq")
 
-huffman_tree = Huffman.build_huffman_tree(sorted_frequancy)
-# encoding_table = Huffman.create_encoding_table(huffman_tree) # can be hidden internally?
+# get usage frequency of letters in text
+sorted_frequency = FrequencyCounter.analyze_text(text, AVLTree)
+IO.inspect(sorted_frequency, label: "sorted freq")
+
+# create a huffman tree
+huffman_tree = Huffman.build_huffman_tree(sorted_frequency)
+
+#encode text using the huffman tree
 encoded = Huffman.encode(text, huffman_tree)
 IO.inspect(encoded, label: "encoded")
+IO.inspect(length(encoded), label: "encoded length")
+
+# decode the text using the huffman tree
 decoded = Huffman.decode(encoded, huffman_tree)
 IO.inspect(decoded, label: "deco")
