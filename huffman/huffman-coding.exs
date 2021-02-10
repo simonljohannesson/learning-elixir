@@ -344,21 +344,29 @@ end
 
 
 # read text from file
-text = ReadFile.read("huffman/text.txt", 10000000)
-IO.inspect(text, label: "text")
+text = ReadFile.read("huffman/text.txt", 1000000000)
+# IO.inspect(text, label: "text")
+IO.inspect(length(text), label: "text length")
 
+IO.puts("calculating frequency")
 # get usage frequency of letters in text
 sorted_frequency = FrequencyCounter.analyze_text(text, AVLTree)
-IO.inspect(sorted_frequency, label: "sorted freq")
+# IO.inspect(sorted_frequency, label: "sorted freq")
+IO.puts("frequency calculated building hoffman tree")
 
 # create a huffman tree
 huffman_tree = Huffman.build_huffman_tree(sorted_frequency)
+IO.puts("hoffman tree built, encoding")
 
 #encode text using the huffman tree
 encoded = Huffman.encode(text, huffman_tree)
-IO.inspect(encoded, label: "encoded")
-IO.inspect(length(encoded), label: "encoded length")
+# IO.inspect(encoded, label: "encoded")
+# IO.inspect(length(encoded), label: "encoded length")
+IO.puts("encoded, decoding")
+
 
 # decode the text using the huffman tree
 decoded = Huffman.decode(encoded, huffman_tree)
-IO.inspect(decoded, label: "deco")
+# IO.inspect(decoded, label: "deco")
+
+IO.puts("decoding")
